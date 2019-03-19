@@ -84,14 +84,18 @@ class LDPC:
         if (np.count_nonzero(S) == 0):
             F = True
     
-        return (F, c.T[0])
+        return c.T[0], F
 
+    
+    def multiple_threshold_majority(self, r, ts):
+        ts[::-1].sort()
+        for t in ts:
+            _, r = self.single_threshold_majority(r, t)
 
-if __name__ == "__main__":
-    H = np.array([[1, 0, 4, 0], [0, 2, 4, 0], [0, 0, 2, 5]])
+        S = self.H @ r % self.q
+        F = False
 
-    idx = np.nonzero(H[:,2])[0]
-
-    print(H)
-    for j in idx[0]:
-        print(j)
+        if (np.count_nonzero(S) == 0):
+            F = True
+        
+        return r, F
