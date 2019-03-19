@@ -36,6 +36,6 @@ def gen_codewords(q, n):
 
 	for j in range(ss.shape[1]):
 		if ss[:, j].max() == 0:
-		codewords.append(cs[:, j])
+			codewords.append(cs[:, j])
 
 	return codewords

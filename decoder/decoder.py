@@ -59,7 +59,7 @@ class LDPC:
     
         return (F, c)
 
-
+'''
 if __name__ == "__main__":
     H = np.array([[1, 0, 4, 0], [0, 2, 4, 0], [0, 0, 2, 5]])
 
@@ -68,3 +68,4 @@ if __name__ == "__main__":
     print(H)
     for j in idx[0]:
         print(j)
+'''
