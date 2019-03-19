@@ -28,6 +28,9 @@ if __name__ == "__main__":
 	r = codebook[0] + e
 	print (r)
 
-	ldpc = LDPC(q, H, l, n)
+	ldpc = LDPC(q, H)
 
-	ldpc.single_threshold_majority(r_seq=r, t=1)	
+	F, c = ldpc.single_threshold_majority(r_seq=r, t=1)
+
+	print (c)
+	print (F)
