@@ -38,7 +38,8 @@ class LDPC:
                             messages[j] = k
                             break
 
-                unique, counts = np.unique(messages, return_counts = True)
+                a = messages[messages.nonzero()]
+                unique, counts = np.unique(a, return_counts = True)
                 A_dict = dict(zip(counts, unique))
                 key_max = max(A_dict.keys(), key=(lambda k: A_dict[k]))
                 v = key_max
@@ -47,7 +48,7 @@ class LDPC:
                 z = self.l - np.count_nonzero(messages)
 
                 if (a - z > t):
-                    r[i] = v
+                    r[i] += v
                     S = self.H @ r
                     b = True
         F = False
