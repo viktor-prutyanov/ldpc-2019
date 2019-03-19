@@ -13,7 +13,7 @@ class LDPC:
         # Initialization
         r = r_seq
         r = (np.array(r)).reshape(-1, 1)
-        S = self.H @ r
+        S = self.H @ r % self.q
         b = True
     
         # Algorithm
@@ -49,7 +49,7 @@ class LDPC:
 
                 if (a - z > t):
                     r[i] += v
-                    S = self.H @ r
+                    S = self.H @ r % self.q
                     b = True
         F = False
         c = r
