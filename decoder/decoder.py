@@ -33,7 +33,7 @@ class LDPC:
                     av = S[j] + dif
                     av = av % self.q
 
-                    for k in range(1, self.q):
+                    for k in range(self.q):
                         if av == k * H[j,i] % self.q:
                             messages[j] = k
                             break
