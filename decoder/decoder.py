@@ -25,16 +25,16 @@ class LDPC:
             for i in range (N):
                 messages = np.zeros(self.l)
 
-                idx = np.nonzero(H[:,i])[0]
+                idx = np.nonzero(self.H[:,i])[0]
 
                 for j in idx:
                     
-                    dif = self.q - (H[j, i] * r[i] % self.q)
+                    dif = self.q - (self.H[j, i] * r[i] % self.q)
                     av = S[j] + dif
                     av = av % self.q
 
                     for k in range(self.q):
-                        if av == k * H[j,i] % self.q:
+                        if av == k * self.H[j,i] % self.q:
                             messages[j] = k
                             break
 

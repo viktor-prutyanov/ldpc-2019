@@ -28,7 +28,7 @@ def get_H(q, n0, l, b):
     H = np.vstack(tuple(Hs))
     return H
 
-def gen_codewords(q, n):
+def gen_codewords(H, q, n):
 	cs = np.array(list(product(range(q), repeat=n))).T
 	ss = H @ cs % q
 	
