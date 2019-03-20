@@ -22,10 +22,11 @@ if __name__ == "__main__":
 
         codebook = gen_codewords(H, q, n)
 
-        v = codebook[2]
+        v = codebook[np.random.randint(low=1, high=len(codebook))]
         print("Initial codeword:\t", v)
 
-        e = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
+        e = np.zeros_like(v)
+        e[np.random.randint(low=1, high=(n+1))] = np.random.randint(low=1, high=q)
         print("Error word:\t\t", e)
 
         r = (v + e) % q
@@ -36,8 +37,9 @@ if __name__ == "__main__":
 
         print("Decoded codeword:\t", c)
         print("Validation status:\t", F)
-        print("Initial - Decoded:\t", (v - c) % q)
+        print("Initial - Decoded:\t", (v - c))
 
+        print("")
 
         # multiple
         ts = [0, 1, 2]
