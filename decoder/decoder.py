@@ -90,7 +90,7 @@ class LDPC:
     def multiple_threshold_majority(self, r, ts):
         ts[::-1].sort()
         for t in ts:
-            _, r = self.single_threshold_majority(r, t)
+            r, _  = self.single_threshold_majority(r, t)
 
         S = self.H @ r % self.q
         F = False

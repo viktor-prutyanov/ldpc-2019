@@ -37,3 +37,15 @@ if __name__ == "__main__":
 	print ("Decoded codeword:\t", c)
 	print ("Validation status:\t", F)
 	print ("Initial - Decoded:\t", (v - c) % q)
+
+
+	# multiple
+	
+	ts = [0, 1, 2]
+
+	r = (v + e) % q
+	c1, F1 = ldpc.multiple_threshold_majority(r, ts=ts)
+
+	print ("Decoded codeword:\t", c1)
+	print ("Validation status:\t", F1)
+	print ("Initial - Decoded:\t", (v - c) % q)
