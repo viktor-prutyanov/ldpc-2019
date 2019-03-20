@@ -47,24 +47,13 @@ class LDPC:
 
                 a = messages[messages.nonzero()]
                 unique, counts = np.unique(a, return_counts = True)
-                A_dict = dict(zip(counts, unique))
 
-                # print("Messages:", messages)
-                # print("a:", a)
-                
                 if len(a) == 0:
                     continue
 
-                # print("unique:", unique)
-                # print("counts:", counts)
-                # print("A_dict:", A_dict)
-
-                key_max = max(A_dict.keys(), key=(lambda k: A_dict[k]))
-                a = key_max
-                v = int(A_dict[key_max])
-
-                # print("a: ", a)
-                # print("v: ", v)
+                idx = np.argmax(counts)
+                a = counts[idx]
+                v = unique[idx]
 
                 z = l - np.count_nonzero(messages)
 
