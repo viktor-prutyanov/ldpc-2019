@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 from itertools import product
+from tqdm import tqdm
 
 def get_H0(q, g, n0):
     r = np.random.randint(q, size=n0)
@@ -29,16 +30,12 @@ def get_H(q, n0, l, b):
     return H
 
 def gen_codewords(H, q, n):
-    cs = np.array(list(product(range(q), repeat=n))).T
-    ss = H @ cs % q
-    js = []
-    codewords = []
+    cs = []
 
-    for j in range(ss.shape[1]):
-        if (ss[:, j].max() == 0):
-            codewords.append(cs[:, j])
-            js.append(j)
+    for c in tqdm(product(range(q), repeat=n), total=q**n):
+        s = H @ np.array(c).T % q
 
-    #print (len(js))
-    #print (codewords)
-    return codewords
+        if not s.any():
+            cs.append(c)
+
+    return cs
