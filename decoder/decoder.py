@@ -41,7 +41,7 @@ class LDPC:
 
                     for k in range(self.q):
                         ms = (self.q - S[j,0]) % self.q
-                        if self.q - S[j,0] == k * self.H[j,i] % self.q:
+                        if ms == k * self.H[j,i] % self.q:
                             messages[t] = k
                             break
 
