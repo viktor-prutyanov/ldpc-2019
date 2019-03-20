@@ -53,12 +53,12 @@ class LDPC:
 
                 idx = np.argmax(counts)
                 a = counts[idx]
-                v = unique[idx]
+                v = int(unique[idx])
 
                 z = l - np.count_nonzero(messages)
 
                 if (a - z > t):
-                    r[i] += v 
+                    r[i] += v
                     r = r % self.q
                     S = self.H @ r % self.q
                     b = True
