@@ -37,11 +37,24 @@ mod_tx = modem.modulate(tx)
 print(mod_tx)
 #rx = awgn(mod_tx, snr_dB)
 rx = mod_tx + (np.random.normal(0, 1, N) + np.random.normal(0, 1, N) * 1.j) / 2
-print(rx)
+print(rx)	
 demod_rx = modem.demodulate(rx, 'hard')
 print(demod_rx)
 q_rx = to_q(demod_rx, N, p)
 
+def count_ber(c, n):
+	non_zero_sum = 0
+
+	for i in c:
+		bin_str = bin(i)[2:]
+		non_zero_sum += np.count_nonzero(np.array(list(bin_str)).astype(dtype=int))
+
+	return (float(non_zero_sum)/float(n * 4))
+
 for i in range(32):
     c, F = ldpc.single_threshold_majority(q_rx[i:i+n], t=3)
     print(f"Digit error rate = {np.count_nonzero(c) / n}, F = {F}")
+    print ("BER = ", count_ber(c, n))
+
+
+
