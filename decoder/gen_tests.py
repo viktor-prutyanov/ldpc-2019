@@ -29,13 +29,16 @@ def get_H(q, n0, l, b):
     return H
 
 def gen_codewords(H, q, n):
-	cs = np.array(list(product(range(q), repeat=n))).T
-	ss = H @ cs % q
-	
-	codewords = []
+    cs = np.array(list(product(range(q), repeat=n))).T
+    ss = H @ cs % q
+    js = []
+    codewords = []
 
-	for j in range(ss.shape[1]):
-		if ss[:, j].max() == 0:
-			codewords.append(cs[:, j])
+    for j in range(ss.shape[1]):
+        if (ss[:, j].max() == 0):
+            codewords.append(cs[:, j])
+            js.append(j)
 
-	return codewords
+    #print (len(js))
+    #print (codewords)
+    return codewords

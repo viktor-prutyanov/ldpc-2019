@@ -8,7 +8,6 @@ from gen_tests import gen_codewords
 from decoder import LDPC
 
 
-
 if __name__ == "__main__":
 	print ("LDPC")
 	
@@ -16,21 +15,25 @@ if __name__ == "__main__":
 	b = 2
 	n = n0 * b
 	q = 3
-	l = 2
+	l = 4
 
 	H = get_H(q, n0, l, b)
 	print ("H shape: ", H.shape)
 
 	codebook = gen_codewords(H, q, n)
-	print ("Zero codeword: ", codebook[0])
+
+	v = codebook[2]
+	print ("Initial codeword:\t", v)
 
 	e = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
-	r = codebook[0] + e
-	print (r)
+	print ("Error word:\t\t", e)
+
+	r = (v + e) % q
+	print ("Noised codeword:\t", r)
 
 	ldpc = LDPC(q, H)
+	c, F = ldpc.single_threshold_majority(r_seq=r, t=3)
 
-	F, c = ldpc.single_threshold_majority(r_seq=r, t=1)
-
-	print (c)
-	print (F)
+	print ("Decoded codeword:\t", c)
+	print ("Validation status:\t", F)
+	print ("Initial - Decoded:\t", (v - c) % q)
