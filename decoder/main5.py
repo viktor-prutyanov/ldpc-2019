@@ -19,7 +19,7 @@ q = 16
 p = 4
 n = H.shape[1]
 R = (n - H.shape[0]) / n
-l = np.count_nonzero(H[0, :])
+l = np.count_nonzero(H[:, 0])
 
 print("H shape is", H.shape)
 print(f"q = {q}, R = {R}, n = {n}, l = {l}")
@@ -46,35 +46,58 @@ def count_ber(c, n):
 
 from tqdm import tqdm
 
-snr_list = np.linspace(0, 20, num=9)
+def get_mean_power(signal):
+    return np.linalg.norm(signal)**2 / len(signal)
+
 tx = np.zeros(N * p, dtype=int)
+scramble_seq = np.random.randint(2, size=(N * p), dtype=int)
+tx = np.bitwise_xor(tx, scramble_seq)
 mod_tx = modem.modulate(tx)
-fig = plt.figure()
+Ps = get_mean_power(mod_tx)
+fig = plt.figure(figsize=(10,6))
 ts = range(0, l)
 
+sigmas = np.logspace(-2.5, 0.5, num=100)
+
 for t in tqdm(ts):
+    snr_list = []
     error_rates = []
     bit_err_rates = []
-    for snr_db in tqdm(snr_list):
-        rx = awgn(mod_tx, snr_db)
+    for sigma in tqdm(sigmas):
+        noise = np.random.normal(0, sigma, N) + 1.j * np.random.normal(0, sigma, N)
+        Pn = get_mean_power(noise)
+        snr_db = 10 * np.log10(Ps / Pn)
+        snr_list.append(snr_db)
+        rx = mod_tx + noise
         demod_rx = modem.demodulate(rx, 'hard')
+        demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
         q_rx = to_q(demod_rx, N, p)
 
         for j in range(N // n):
-                c, F = ldpc.single_threshold_majority(q_rx[j:(j + n)], t=t)
-                error_rates.append(count_ber(c, n))
+            c, F = ldpc.single_threshold_majority(q_rx[j:(j + n)], t=t)
+            error_rates.append(count_ber(c, n))
 
         bit_err_rates.append(np.array(error_rates).mean())
     plt.plot(snr_list, bit_err_rates, '.-', label=f"t = {t}")
 
+print("No LDPC case processing...")
+
+snr_list = []
 bit_err_rates = []
-for snr_db in tqdm(snr_list):
-    rx = awgn(mod_tx, snr_db)
+for sigma in tqdm(sigmas):
+    noise = np.random.normal(0, sigma, N) + 1.j * np.random.normal(0, sigma, N)
+    Pn = get_mean_power(noise)
+    snr_db = 10 * np.log10(Ps / Pn)
+    snr_list.append(snr_db)
+    rx = mod_tx + noise
     demod_rx = modem.demodulate(rx, 'hard')
+    demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
     bit_err_rates.append(np.count_nonzero(demod_rx) / len(demod_rx))
 
 plt.plot(snr_list, bit_err_rates, '.-', label=f"No LDPC")
 
+plt.xlabel("SNR dB")
+plt.ylabel("BRE")
 plt.yscale("log")
 plt.grid()
 plt.legend()

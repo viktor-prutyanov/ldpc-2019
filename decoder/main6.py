@@ -11,10 +11,7 @@ M = 16 # Use QAM-16
 
 modem = QAMModem(M)
 
-snr_dB = 10
-print(f"SNR = {snr_dB} dB")
-
-H = np.loadtxt('../H.txt', usecols=range(512), dtype=int)
+H = np.loadtxt('H2.txt', usecols=range(512), dtype=int)
 q = 16
 p = 4
 n = H.shape[1]
@@ -51,26 +48,29 @@ def get_mean_power(signal):
 
 tx = np.zeros(N * p, dtype=int)
 scramble_seq = np.random.randint(2, size=(N * p), dtype=int)
-tx = np.bitwise_xor(tx, scramble_seq) # Scrambling
+# tx = np.bitwise_xor(tx, scramble_seq)
 mod_tx = modem.modulate(tx)
 Ps = get_mean_power(mod_tx)
 fig = plt.figure(figsize=(10,6))
-ts = range(0, l)
 
-sigmas = np.logspace(-2.5, 0.5, num=100)
+sigmas = np.logspace(-1, 0, num=100) # -1 0.5 20
+
+print("Single threshold case processing...")
+
+ts = range(0, l)
 
 for t in tqdm(ts):
     snr_list = []
-    error_rates = []
     bit_err_rates = []
     for sigma in tqdm(sigmas):
+        error_rates = []
         noise = np.random.normal(0, sigma, N) + 1.j * np.random.normal(0, sigma, N)
         Pn = get_mean_power(noise)
         snr_db = 10 * np.log10(Ps / Pn)
         snr_list.append(snr_db)
         rx = mod_tx + noise
         demod_rx = modem.demodulate(rx, 'hard')
-        demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
+        # demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
         q_rx = to_q(demod_rx, N, p)
 
         for j in range(N // n):
@@ -80,6 +80,37 @@ for t in tqdm(ts):
         bit_err_rates.append(np.array(error_rates).mean())
     plt.plot(snr_list, bit_err_rates, '.-', label=f"t = {t}")
 
+'''
+print("Multiple threshold case processing...")
+
+tss = [[0, 1], [0, 2], [0, 1, 2]]
+
+for ts in tqdm(tss):
+    snr_list = []
+    bit_err_rates = []
+    mFs = []
+    for sigma in tqdm(sigmas):
+        error_rates = []
+        Fs = []
+        noise = np.random.normal(0, sigma, N) + 1.j * np.random.normal(0, sigma, N)
+        Pn = get_mean_power(noise)
+        snr_db = 10 * np.log10(Ps / Pn)
+        snr_list.append(snr_db)
+        rx = mod_tx + noise
+        demod_rx = modem.demodulate(rx, 'hard')
+#        demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
+        q_rx = to_q(demod_rx, N, p)
+
+        for j in range(N // n):
+            c, F = ldpc.multiple_threshold_majority(q_rx[j:(j + n)], ts)
+            error_rates.append(count_ber(c, n))
+            Fs.append(F)
+
+        bit_err_rates.append(np.array(error_rates).mean())
+        mFs.append(np.array(Fs).any())
+    plt.plot(snr_list, bit_err_rates, '.-', label=f"ts = {ts}")
+    print(mFs)
+'''
 print("No LDPC case processing...")
 
 snr_list = []
@@ -91,7 +122,7 @@ for sigma in tqdm(sigmas):
     snr_list.append(snr_db)
     rx = mod_tx + noise
     demod_rx = modem.demodulate(rx, 'hard')
-    demod_rx = np.bitwise_xor(demod_rx, scramble_seq) # Scrambling
+    # demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
     bit_err_rates.append(np.count_nonzero(demod_rx) / len(demod_rx))
 
 plt.plot(snr_list, bit_err_rates, '.-', label=f"No LDPC")

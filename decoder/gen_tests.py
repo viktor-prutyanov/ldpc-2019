@@ -19,8 +19,11 @@ def phi(H_b, n0, b, q):
     permutation = np.random.permutation(range(n0 * b))
     H_b1 = H_b[:, permutation].copy()
     for j in range(n0 * b):
-        H_b1[:, j] *= np.random.randint(low=1, high=q)
-        H_b1[:, j] %= q
+        while True:
+            h = H_b1[:, j] * np.random.randint(low=1, high=q) % q
+            if np.count_nonzero(h) == b:
+                H_b1[:, j] = h
+                break
     return H_b1
 
 def get_H(q, n0, l, b):
