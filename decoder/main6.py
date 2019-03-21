@@ -4,6 +4,7 @@ import numpy as np
 from commpy import QAMModem, awgn
 from scipy import stats
 import matplotlib.pyplot as plt
+from multiprocessing import Pool
 
 from decoder import LDPC
 
@@ -20,8 +21,6 @@ l = np.count_nonzero(H[:, 0])
 
 print("H shape is", H.shape)
 print(f"q = {q}, R = {R}, n = {n}, l = {l}")
-
-ldpc = LDPC(q, H)
 
 N = 32 * n # Length of transmission
 
@@ -53,15 +52,18 @@ mod_tx = modem.modulate(tx)
 Ps = get_mean_power(mod_tx)
 fig = plt.figure(figsize=(10,6))
 
-sigmas = np.logspace(-1, 0, num=100) # -1 0.5 20
+sigmas = np.logspace(-1, 0, num=10) # -1 0.5 20
 
 print("Single threshold case processing...")
 
 ts = range(0, l)
 
-for t in tqdm(ts):
+def simulate_single(t):
+    ldpc = LDPC(q, H)
     snr_list = []
     bit_err_rates = []
+    print(t)
+
     for sigma in tqdm(sigmas):
         error_rates = []
         noise = np.random.normal(0, sigma, N) + 1.j * np.random.normal(0, sigma, N)
@@ -69,7 +71,7 @@ for t in tqdm(ts):
         snr_db = 10 * np.log10(Ps / Pn)
         snr_list.append(snr_db)
         rx = mod_tx + noise
-        demod_rx = modem.demodulate(rx, 'hard')
+        demod_rx = QAMModem(M).demodulate(rx, 'hard')
         # demod_rx = np.bitwise_xor(demod_rx, scramble_seq)
         q_rx = to_q(demod_rx, N, p)
 
@@ -78,7 +80,16 @@ for t in tqdm(ts):
             error_rates.append(count_ber(c, n))
 
         bit_err_rates.append(np.array(error_rates).mean())
-    plt.plot(snr_list, bit_err_rates, '.-', label=f"t = {t}")
+
+    print(snr_list, bit_err_rates)
+    return (snr_list, bit_err_rates)
+#plt.plot(snr_list, bit_err_rates, '.-', label=f"t = {t}")
+
+with Pool(len(ts)) as pool:
+    results = pool.map(simulate_single, ts)
+    for r in results:
+        print(r)
+        plt.plot(*(r), '.-')
 
 '''
 print("Multiple threshold case processing...")
