@@ -1,0 +1,8 @@
+./main.py --num 500 --num-points 50 --num-ts 0 > data-uncoded.txt
+./main.py --num 500 --num-points 50 --num-ts 1 --ts 0 > data-0.txt
+./main.py --num 500 --num-points 50 --num-ts 1 --ts 1 > data-1.txt
+./main.py --num 500 --num-points 50 --num-ts 1 --ts 2 > data-2.txt
+./main.py --num 500 --num-points 50 --num-ts 1 --ts 3 > data-3.txt
+./main.py --num 500 --num-points 50 --num-ts 1 --ts 4 > data-4.txt
+./main.py --num 500 --num-points 50 --num-ts 3 --ts 0 2 4 > data-024.txt
+./main.py --num 500 --num-points 50 --num-ts 5 --ts 0 1 2 3 4 > data-01234.txt
